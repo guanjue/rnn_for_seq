@@ -48,6 +48,7 @@ print(h_pred.shape)
 network = {}
 network_superstate = {}
 pred_cluster = {}
+pred_supercluster = {}
 t_s = {}
 t_s_super = {}
 edge_num = {}
@@ -81,6 +82,16 @@ for i in range(labels_gmm_kmeans.shape[0]):
 			pred_cluster[t_node].append(t_pred)
 		else:
 			pred_cluster[t_node] = [t_pred]
+		### append super state pred dict (s_node)
+		if s_node.split('_')[0] in pred_supercluster:
+			pred_supercluster[s_node.split('_')[0]].append(s_pred)
+		else:
+			pred_supercluster[s_node.split('_')[0]] = [s_pred]
+		### append super state pred dict (t_node)
+		if t_node.split('_')[0] in pred_supercluster:
+			pred_supercluster[t_node.split('_')[0]].append(t_pred)
+		else:
+			pred_supercluster[t_node.split('_')[0]] = [t_pred]
 		### append nodes dict (s_t)
 		if s_node+t_node in t_s:
 			t_s[s_node+t_node] = t_s[s_node+t_node] + 1
@@ -120,7 +131,7 @@ for records in network:
 network_matrix = np.array(network_matrix)
 network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
 write2d_array(network_matrix,'network_table.txt')
-### for expression
+### for prediction
 pred_cluster_table = []
 for records in pred_cluster:
 	pred_all = np.array(pred_cluster[records])
@@ -159,6 +170,12 @@ for records in network_superstate_matrix:
 	if float(records[5])>=np.mean(enrichment)+2.326348*np.std(enrichment):
 		network_superstate_matrix_thresh.append(records)
 write2d_array(network_superstate_matrix_thresh,'network_superstate_matrix_thresh.txt')
+### for super state prediction
+pred_supercluster_table = []
+for records in pred_supercluster:
+	pred_all = np.array(pred_supercluster[records])
+	pred_supercluster_table.append( [records, np.mean(pred_all)] )
+write2d_array(pred_supercluster_table,'pred_supercluster_table.txt')
 ################################################################################################
 
 
