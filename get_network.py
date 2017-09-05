@@ -170,6 +170,12 @@ for records in network_superstate_matrix:
 	if float(records[5])>=np.mean(enrichment)+2.326348*np.std(enrichment):
 		network_superstate_matrix_thresh.append(records)
 write2d_array(network_superstate_matrix_thresh,'network_superstate_matrix_thresh.txt')
+network_superstate_matrix_thresh_noself = []
+for records in network_superstate_matrix:
+	if float(records[5])>=np.mean(enrichment)+2.326348*np.std(enrichment):
+		if records[0] != records[2]:
+			network_superstate_matrix_thresh_noself.append(records)
+write2d_array(network_superstate_matrix_thresh_noself,'network_superstate_matrix_thresh_noself.txt')
 ### for super state prediction
 pred_supercluster_table = []
 for records in pred_supercluster:
