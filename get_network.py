@@ -52,12 +52,13 @@ t_s = {}
 t_s_super = {}
 edge_num = {}
 for i in range(labels_gmm_kmeans.shape[0]):
-	for j in range(labels_gmm_kmeans.shape[1]-2):
+	for j in range(3, labels_gmm_kmeans.shape[1]-1):
 		s_node = labels_gmm_kmeans[i,j]
 		t_node = labels_gmm_kmeans[i,j+1]
 		#edge = sequence[i,j+1]
 		#edge = [sequence[i,j], sequence[i,j+1], sequence[i,j+2]]
-		edge = [sequence[i,j], sequence[i,j+1]]
+		#edge = [sequence[i,j], sequence[i,j+1]]
+		edge = [sequence[i,j-3], sequence[i,j-2], sequence[i,j-1], sequence[i,j]]
 		s_pred = h_pred[i,j]
 		t_pred = h_pred[i,j+1]
 		### append network
@@ -140,7 +141,25 @@ for records in network_superstate:
 network_superstate_matrix = np.array(network_superstate_matrix)
 network_superstate_matrix = network_superstate_matrix[np.argsort(np.array(network_superstate_matrix[:,3],dtype=int))]
 write2d_array(network_superstate_matrix,'network_superstate_table.txt')
-
+################################################################################################
+### plot enrichment histgram
+print('network_superstate_matrix[:,5].shape')
+print(network_superstate_matrix[:,5].shape)
+enrichment = np.array(network_superstate_matrix[:,5],dtype=float)
+print(enrichment[0:10])
+plt.hist(enrichment, bins='auto')
+plt.savefig('enrichment_hist.pdf')
+################################################################################################
+### get significant enriched threshold 0.99
+print(np.mean(enrichment))
+print(np.std(enrichment))
+print(np.mean(enrichment)+2.326348*np.std(enrichment))
+network_superstate_matrix_thresh = []
+for records in network_superstate_matrix:
+	if float(records[5])>=np.mean(enrichment)+2.326348*np.std(enrichment):
+		network_superstate_matrix_thresh.append(records)
+write2d_array(network_superstate_matrix_thresh,'network_superstate_matrix_thresh.txt')
+################################################################################################
 
 
 
