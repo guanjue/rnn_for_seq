@@ -203,9 +203,15 @@ for i in range(0,rnn_hidden_layer.shape[2]):
 	rnn_hidden_layer_channel = np.transpose(rnn_hidden_layer[:,:,i])
 	write2d_array(rnn_hidden_layer_channel,'rnn_hidden_layer_channel/rnn_hidden_layer_channel'+str(i)+'.txt')
 
-rnn_hidden_layer_reshape = rnn_hidden_layer.reshape(rnn_hidden_layer.shape[0]*rnn_hidden_layer.shape[1], rnn_hidden_layer.shape[2])
+rnn_hidden_layer_transpose = np.transpose(rnn_hidden_layer, (1,0,2))
+rnn_hidden_layer_reshape = rnn_hidden_layer_transpose.reshape(rnn_hidden_layer_transpose.shape[0]*rnn_hidden_layer_transpose.shape[1], rnn_hidden_layer_transpose.shape[2])
 write2d_array(rnn_hidden_layer_reshape,'rnn_hidden_layer_reshape.txt')
 np.savez('rnn_hidden_layer_reshape.npz', rnn_hidden_layer_reshape)
+
+np.savez('rnn_hidden_layer.npz', rnn_hidden_layer)
+
+rnn_hidden_layer_pred_flat = np.dot(rnn_hidden_layer_reshape, fc_layer)
+write2d_array(rnn_hidden_layer_pred_flat,'rnn_hidden_layer_pred_flat.txt')
 
 rnn_hidden_layer_pred = np.dot(rnn_hidden_layer, fc_layer)
 print('rnn_hidden_layer_pred.shape')
