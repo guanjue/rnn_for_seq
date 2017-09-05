@@ -24,7 +24,7 @@ data_train = []
 for i in data_test0:
 	data_train.append(data_train0[i])
 xs_train = data_train[1]
-ys_train = np.array(data_train[2])
+ys_train = np.array([data_train[2]])
 
 write2d_array(xs_train,'train.txt')
 write2d_array(ys_train,'train_y.txt')
