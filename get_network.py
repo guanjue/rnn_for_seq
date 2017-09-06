@@ -158,21 +158,27 @@ print('network_superstate_matrix[:,5].shape')
 print(network_superstate_matrix[:,5].shape)
 enrichment = np.array(network_superstate_matrix[:,5],dtype=float)
 print(enrichment[0:10])
-plt.hist(enrichment, bins='auto')
+plt.hist(enrichment, 100, normed=True, histtype='bar',color='k')
 plt.savefig('enrichment_hist.pdf')
 ################################################################################################
 ### get significant enriched threshold 0.99
-print(np.mean(enrichment))
-print(np.std(enrichment))
-print(np.mean(enrichment)+2.326348*np.std(enrichment))
+print('enrichment analysis:')
+z_score = stats.norm.ppf(0.99)
+print('z score: '+str(z_score))
+print('mean: '+str(np.mean(enrichment)))
+print('std: '+str(np.std(enrichment)))
+print('upper lim: '+str(np.mean(enrichment)+z_score*np.std(enrichment)))
+print('lower lim: '+str(np.mean(enrichment)-z_score*np.std(enrichment)))
+
 network_superstate_matrix_thresh = []
 for records in network_superstate_matrix:
-	if float(records[5])>=np.mean(enrichment)+2.326348*np.std(enrichment):
+	if float(records[5])>=np.mean(enrichment)+z_score*np.std(enrichment):
 		network_superstate_matrix_thresh.append(records)
 write2d_array(network_superstate_matrix_thresh,'network_superstate_matrix_thresh.txt')
 network_superstate_matrix_thresh_noself = []
+
 for records in network_superstate_matrix:
-	if float(records[5])>=np.mean(enrichment)+2.326348*np.std(enrichment):
+	if (float(records[5])>=np.mean(enrichment)+z_score*np.std(enrichment)): #or (float(records[5])<=np.mean(enrichment)-z_score*np.std(enrichment)):
 		if records[0] != records[2]:
 			network_superstate_matrix_thresh_noself.append(records)
 write2d_array(network_superstate_matrix_thresh_noself,'network_superstate_matrix_thresh_noself.txt')
