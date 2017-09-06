@@ -137,7 +137,7 @@ print(network_matrix[:,5].shape)
 network_enrichment_hist = np.array(network_matrix[:,5],dtype=float)
 print(network_enrichment_hist[0:10])
 plt.hist(network_enrichment_hist, 100, normed=True, histtype='bar',color='k')
-plt.savefig('network_enrichment_hist.pdf')
+plt.savefig('network_enrichment_hist_state.pdf')
 ################################################################################################
 ### get significant network edge
 network_matrix_thresh = []
@@ -188,7 +188,7 @@ print(network_superstate_matrix[:,5].shape)
 enrichment = np.array(network_superstate_matrix[:,5],dtype=float)
 print(enrichment[0:10])
 plt.hist(enrichment, 100, normed=True, histtype='bar',color='k')
-plt.savefig('enrichment_hist.pdf')
+plt.savefig('enrichment_hist_superstate.pdf')
 ################################################################################################
 ### get significant enriched threshold 0.99
 print('enrichment analysis:')
