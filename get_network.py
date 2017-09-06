@@ -53,13 +53,13 @@ t_s = {}
 t_s_super = {}
 edge_num = {}
 for i in range(labels_gmm_kmeans.shape[0]):
-	for j in range(3, labels_gmm_kmeans.shape[1]-1):
+	for j in range(2, labels_gmm_kmeans.shape[1]-1):
 		s_node = labels_gmm_kmeans[i,j]
 		t_node = labels_gmm_kmeans[i,j+1]
 		#edge = sequence[i,j+1]
 		#edge = [sequence[i,j], sequence[i,j+1], sequence[i,j+2]]
 		#edge = [sequence[i,j], sequence[i,j+1]]
-		edge = [sequence[i,j-3], sequence[i,j-2], sequence[i,j-1], sequence[i,j]]
+		edge = [sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1]]
 		s_pred = h_pred[i,j]
 		t_pred = h_pred[i,j+1]
 		### append network
@@ -115,7 +115,6 @@ for i in range(0,4):
 	for j in range(0,4):
 		dimer_list[str(h)] = seq[i]+seq[j]
 		h=h+1
-
 ### convrt dict to array
 ### for network
 network_matrix = []
@@ -125,12 +124,42 @@ for records in network:
 		kmer_tmp = dimer_list[str(network[records][1][0])]
 		for d in range(1,len(network[records][1])):
 			kmer_tmp = kmer_tmp + dimer_list[str(network[records][1][d])][1]
-
+		### get expected edge number by chance
 		exp_set_num = float(t_s[network[records][0]+network[records][2]] * edge_num[str(network[records][1])] ) / float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1] )
 		network_matrix.append([network[records][0], kmer_tmp, network[records][2], network[records][3], exp_set_num, (network[records][3]+100)/(exp_set_num+100) ])
 network_matrix = np.array(network_matrix)
 network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
 write2d_array(network_matrix,'network_table.txt')
+################################################################################################
+### plot network_enrichment_hist histgram
+print('network_matrix[:,5].shape')
+print(network_matrix[:,5].shape)
+network_enrichment_hist = np.array(network_matrix[:,5],dtype=float)
+print(network_enrichment_hist[0:10])
+plt.hist(network_enrichment_hist, 100, normed=True, histtype='bar',color='k')
+plt.savefig('network_enrichment_hist.pdf')
+################################################################################################
+### get significant network edge
+network_matrix_thresh = []
+z_score = stats.norm.ppf(0.99)
+for records in network_matrix:
+	if float(records[5])>=np.mean(network_enrichment_hist)+z_score*np.std(network_enrichment_hist):
+		network_matrix_thresh.append(records)
+network_matrix_thresh = np.array(network_matrix_thresh)
+network_matrix_thresh = network_matrix_thresh[np.argsort(np.array(network_matrix_thresh[:,3],dtype=int))]
+write2d_array(network_matrix_thresh,'network_matrix_thresh.txt')
+################################################################################################
+### get significant network edge
+network_matrix_thresh = []
+z_score = stats.norm.ppf(0.99)
+for records in network_matrix:
+	if float(records[5])>=np.mean(network_enrichment_hist)+z_score*np.std(network_enrichment_hist):
+		if records[0] != records[2]:
+			network_matrix_thresh.append(records)
+network_matrix_thresh = np.array(network_matrix_thresh)
+network_matrix_thresh = network_matrix_thresh[np.argsort(np.array(network_matrix_thresh[:,3],dtype=int))]
+write2d_array(network_matrix_thresh,'network_matrix_thresh_noself.txt')
+################################################################################################
 ### for prediction
 pred_cluster_table = []
 for records in pred_cluster:
@@ -142,11 +171,11 @@ network_superstate_matrix = []
 for records in network_superstate:
 	if network_superstate[records][3] >=0:
 		#print(network[records][1])
-
+		### dimer digit to dimer sequence
 		kmer_tmp = dimer_list[str(network_superstate[records][1][0])]
 		for d in range(1,len(network_superstate[records][1])):
 			kmer_tmp = kmer_tmp + dimer_list[str(network_superstate[records][1][d])][1]
-
+		### get expected edge number by chance
 		exp_set_num = float(t_s_super[network_superstate[records][0]+network_superstate[records][2]] * edge_num[str(network_superstate[records][1])] ) / float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1] )
 		network_superstate_matrix.append([network_superstate[records][0], kmer_tmp, network_superstate[records][2], network_superstate[records][3], exp_set_num, (network_superstate[records][3]+100)/(exp_set_num+100) ])
 network_superstate_matrix = np.array(network_superstate_matrix)
@@ -169,14 +198,14 @@ print('mean: '+str(np.mean(enrichment)))
 print('std: '+str(np.std(enrichment)))
 print('upper lim: '+str(np.mean(enrichment)+z_score*np.std(enrichment)))
 print('lower lim: '+str(np.mean(enrichment)-z_score*np.std(enrichment)))
-
+### only significant network
 network_superstate_matrix_thresh = []
 for records in network_superstate_matrix:
 	if float(records[5])>=np.mean(enrichment)+z_score*np.std(enrichment):
 		network_superstate_matrix_thresh.append(records)
 write2d_array(network_superstate_matrix_thresh,'network_superstate_matrix_thresh.txt')
 network_superstate_matrix_thresh_noself = []
-
+### noself network
 for records in network_superstate_matrix:
 	if (float(records[5])>=np.mean(enrichment)+z_score*np.std(enrichment)): #or (float(records[5])<=np.mean(enrichment)-z_score*np.std(enrichment)):
 		if records[0] != records[2]:
@@ -190,23 +219,3 @@ for records in pred_supercluster:
 write2d_array(pred_supercluster_table,'pred_supercluster_table.txt')
 ################################################################################################
 
-
-
-'''
-network_matrix_superstate = {}
-for records in network_matrix:
-	s_node = records[0].split('_')[0]
-	t_node = records[2].split('_')[0]
-	edge = records[1]
-	if s_node+edge+t_node in network_matrix_superstate:
-		network_matrix_superstate[s_node+edge+t_node] = [s_node, edge, t_node, int(network_matrix_superstate[s_node+edge+t_node][3]) + int(records[3])]
-	else:
-		network_matrix_superstate[s_node+edge+t_node] = [s_node, edge, t_node, int(records[3])]
-
-network_matrix_superstate_matrix = []
-for records in network_matrix_superstate:
-	if network_matrix_superstate[records][3]>=0:
-		network_matrix_superstate_matrix.append(network_matrix_superstate[records])
-
-write2d_array(network_matrix_superstate_matrix,'network_matrix_superstate_matrix.txt')
-'''
