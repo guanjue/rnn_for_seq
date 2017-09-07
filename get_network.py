@@ -131,29 +131,32 @@ network_matrix = np.array(network_matrix)
 network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
 write2d_array(network_matrix,'network_table.txt')
 ################################################################################################
-### plot network_enrichment_hist histgram
+### prepare to plot network_enrichment_hist histgram
 print('network_matrix[:,5].shape')
 print(network_matrix[:,5].shape)
-network_enrichment_hist = np.array(network_matrix[:,5],dtype=float)
-print(network_enrichment_hist[0:10])
-plt.hist(network_enrichment_hist, 100, normed=True, histtype='bar',color='k')
+network_enrichment_forhist = np.array(network_matrix[:,5],dtype=float)
+print(network_enrichment_forhist[0:10])
+################################################################################################
+### get significant network edge
+network_matrix_thresh = []
+z_score = stats.norm.ppf(0.99)
+for records in network_matrix:
+	if float(records[5])>=np.mean(network_enrichment_forhist)+z_score*np.std(network_enrichment_forhist):
+		network_matrix_thresh.append(records)
+network_matrix_thresh = np.array(network_matrix_thresh)
+network_matrix_thresh = network_matrix_thresh[np.argsort(np.array(network_matrix_thresh[:,3],dtype=int))]
+write2d_array(network_matrix_thresh,'network_matrix_thresh.txt')
+################################################################################################
+### plot network_enrichment_hist histgram
+plt.hist(network_enrichment_forhist, 100, normed=True, histtype='bar',color='k')
+plt.axvline(np.mean(network_enrichment_forhist)+z_score*np.std(network_enrichment_forhist), color='b', linestyle='dashed', linewidth=2)
 plt.savefig('network_enrichment_hist_state.pdf')
 ################################################################################################
 ### get significant network edge
 network_matrix_thresh = []
 z_score = stats.norm.ppf(0.99)
 for records in network_matrix:
-	if float(records[5])>=np.mean(network_enrichment_hist)+z_score*np.std(network_enrichment_hist):
-		network_matrix_thresh.append(records)
-network_matrix_thresh = np.array(network_matrix_thresh)
-network_matrix_thresh = network_matrix_thresh[np.argsort(np.array(network_matrix_thresh[:,3],dtype=int))]
-write2d_array(network_matrix_thresh,'network_matrix_thresh.txt')
-################################################################################################
-### get significant network edge
-network_matrix_thresh = []
-z_score = stats.norm.ppf(0.99)
-for records in network_matrix:
-	if float(records[5])>=np.mean(network_enrichment_hist)+z_score*np.std(network_enrichment_hist):
+	if float(records[5])>=np.mean(network_enrichment_forhist)+z_score*np.std(network_enrichment_forhist):
 		if records[0] != records[2]:
 			network_matrix_thresh.append(records)
 network_matrix_thresh = np.array(network_matrix_thresh)
@@ -182,32 +185,35 @@ network_superstate_matrix = np.array(network_superstate_matrix)
 network_superstate_matrix = network_superstate_matrix[np.argsort(np.array(network_superstate_matrix[:,3],dtype=int))]
 write2d_array(network_superstate_matrix,'network_superstate_table.txt')
 ################################################################################################
-### plot enrichment histgram
+### prepare to plot enrichment histgram
 print('network_superstate_matrix[:,5].shape')
 print(network_superstate_matrix[:,5].shape)
-enrichment = np.array(network_superstate_matrix[:,5],dtype=float)
-print(enrichment[0:10])
-plt.hist(enrichment, 100, normed=True, histtype='bar',color='k')
-plt.savefig('enrichment_hist_superstate.pdf')
+network_enrichment_forhist_superstate = np.array(network_superstate_matrix[:,5],dtype=float)
+print(network_enrichment_forhist_superstate[0:10])
 ################################################################################################
 ### get significant enriched threshold 0.99
-print('enrichment analysis:')
+print('network_enrichment_forhist_superstate analysis:')
 z_score = stats.norm.ppf(0.99)
 print('z score: '+str(z_score))
-print('mean: '+str(np.mean(enrichment)))
-print('std: '+str(np.std(enrichment)))
-print('upper lim: '+str(np.mean(enrichment)+z_score*np.std(enrichment)))
-print('lower lim: '+str(np.mean(enrichment)-z_score*np.std(enrichment)))
+print('mean: '+str(np.mean(network_enrichment_forhist_superstate)))
+print('std: '+str(np.std(network_enrichment_forhist_superstate)))
+print('upper lim: '+str(np.mean(network_enrichment_forhist_superstate)+z_score*np.std(network_enrichment_forhist_superstate)))
+print('lower lim: '+str(np.mean(network_enrichment_forhist_superstate)-z_score*np.std(network_enrichment_forhist_superstate)))
 ### only significant network
 network_superstate_matrix_thresh = []
 for records in network_superstate_matrix:
-	if float(records[5])>=np.mean(enrichment)+z_score*np.std(enrichment):
+	if float(records[5])>=np.mean(network_enrichment_forhist_superstate)+z_score*np.std(network_enrichment_forhist_superstate):
 		network_superstate_matrix_thresh.append(records)
 write2d_array(network_superstate_matrix_thresh,'network_superstate_matrix_thresh.txt')
 network_superstate_matrix_thresh_noself = []
+################################################################################################
+### plot enrichment histgram
+plt.hist(network_enrichment_forhist_superstate, 100, normed=True, histtype='bar',color='k')
+plt.savefig('network_enrichment_hist_superstate.pdf')
+################################################################################################
 ### noself network
 for records in network_superstate_matrix:
-	if (float(records[5])>=np.mean(enrichment)+z_score*np.std(enrichment)): #or (float(records[5])<=np.mean(enrichment)-z_score*np.std(enrichment)):
+	if (float(records[5])>=np.mean(network_enrichment_forhist_superstate)+z_score*np.std(network_enrichment_forhist_superstate)): #or (float(records[5])<=np.mean(enrichment)-z_score*np.std(enrichment)):
 		if records[0] != records[2]:
 			network_superstate_matrix_thresh_noself.append(records)
 write2d_array(network_superstate_matrix_thresh_noself,'network_superstate_matrix_thresh_noself.txt')
