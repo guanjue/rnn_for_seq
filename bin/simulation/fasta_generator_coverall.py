@@ -34,8 +34,10 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 	for n in range(seq_num):
 		### generate the random sequence
 		rand_seq = np.random.randint(4,size=seq_len)
-		### randomly select motif 1 position		
+		### randomly select motif 1 position
+		if_motif1_added = 0
 		if np.random.rand(1)[0] <= motif1_seq0_p: # given the motif add probability
+			if_motif1_added = if_motif1_added + 1
 			if relative_pos == 'upstream':
 				motif1_positon = np.random.random_integers(len(motif2_seq), seq_len-1-len(motif1_seq), 1)[0]
 			elif relative_pos == 'downstream':
@@ -50,7 +52,13 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 				i0 = i0+1
 
 		### check if the secondary motif is intersect with the primary motif
-		if np.random.rand(1)[0] <= motif2_seq0_p: # given the motif add probability
+		# make sure sequence without motif will have motif2
+		if if_motif1_added == 1:
+			random_2 = np.random.rand(1)[0]
+		#else:
+		#	random_2 = 0
+
+		if random_2 <= motif2_seq0_p: # given the motif add probability
 			if relative_pos == 'upstream':
 				### randomly select motif 2 position
 				motif2_positon = np.random.random_integers(0, motif1_positon - len(motif2_seq), 1)[0]
@@ -67,7 +75,15 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 			for i in range(motif2_positon,motif2_positon+len(motif2_seq)):
 				rand_seq[i] = motif2_seq[i0]
 				i0 = i0+1
-
+		elif random_2 == 0: # given the motif add probability (for seq without motif1)	
+			### randomly select motif 2 position
+			motif2_positon = np.random.random_integers(0, seq_len-1-len(motif2_seq), 1)[0]
+			motif2_positon = np.random.random_integers(0, seq_len-1-len(motif2_seq), 1)[0]
+			### add the second motif
+			i0 = 0
+			for i in range(motif2_positon,motif2_positon+len(motif2_seq)):
+				rand_seq[i] = motif2_seq[i0]
+				i0 = i0+1
 		### convert acgt to 0123
 		generated_seq.append(['>'+str(n)])
 		tmp = ''
