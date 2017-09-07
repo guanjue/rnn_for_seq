@@ -273,5 +273,8 @@ h_conv1_matrix = np.array(sess.run(h_conv1, feed_dict={x: xs_test_matrix, y_: ys
 h_conv1_matrix_digit = np.argmax(h_conv1_matrix[:,:,0,:],axis=2)
 write2d_array(h_conv1_matrix_digit,'h_conv1_matrix_digit.txt')
 
+x_matrix = np.array(sess.run(x, feed_dict={x: xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0}))
+x_matrix_digit = np.argmax(x_matrix[:,:,0,:],axis=2)
+write2d_array(x_matrix_digit,'x_matrix_digit.txt')
 
 
