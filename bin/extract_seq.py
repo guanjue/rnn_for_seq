@@ -17,9 +17,9 @@ for records in data0:
 	test2=0
 	for letter in records:
 		kmer = kmer[1:]+letter
-		if kmer =='11003' and test2<1:
+		if kmer =='30331':# and test2<1:
 			test1=test1+1
-		if kmer =='03322':#'30331': 33332 13210 32231 33301 20332 01020 03322 11003
+		if kmer =='33223':#'30331': 33332 13210 32231 33301 20332 01020 03322 11003
 			test2=test2+1
 
 	if test1>=1 and test2>=1:
