@@ -57,7 +57,7 @@ data0_sample = data0_sample.reshape(data0_sample.shape[0],1)
 #gmm = mixture.GaussianMixture(n_components=10, covariance_type='full', max_iter=1000, tol=0.000001).fit(data0_sample.reshape(data0_sample.shape[0],1))
 lowest_bic = 100000000000
 bic=[]
-for i in range(1,11):
+for i in range(1,8):
 	gmm_tmp = mixture.GaussianMixture(n_components=i, covariance_type='full', max_iter=100, tol=0.001, random_state=2017).fit(data0_sample)
 	bic.append(gmm_tmp.bic(data0_sample))
 	if bic[-1] < lowest_bic:
