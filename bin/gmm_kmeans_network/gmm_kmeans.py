@@ -18,14 +18,6 @@ import itertools
 from sklearn.cluster import KMeans
 
 ################################################################################################
-def read2d_array(filename):
-	r1=open(output,'w')
-	for records in array:
-		for i in range(0,len(records)-1):
-			r1.write(str(records[i])+'\t')
-		r1.write(str(records[len(records)-1])+'\n')
-	r1.close()
-
 def write2d_array(array,output):
 	r1=open(output,'w')
 	for records in array:
