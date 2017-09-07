@@ -75,7 +75,7 @@ sec_d=100
 thr_d=1
 for_d=4
 
-filter1_size1=16
+filter1_size1=64
 filter1_size2=1
 filter1_size_out=32
 
@@ -111,6 +111,40 @@ def weight_dimerscan_variable():
 	print(weight_dimerscaner.shape)
 	return weight_dimerscaner
 
+def get_kmer_matrix(k):
+	kmer_matrix = np.zeros((pow(4, k),k)) # initial kmer-matrix
+	digit = range(4) # get nuc list
+	for i in range(kmer_matrix.shape[1]): # for each column in kmer-matrix (each k-mer position)
+		n = 0
+		m = 0
+		for j in range(kmer_matrix.shape[0]): # for each row in kmer-matrix (each k-mer)
+			if m%(kmer_matrix.shape[0]/pow(4,i+1)) == 0: 
+				if n ==len(digit):
+					n=0
+				used_digit = digit[n]
+				n = n+1
+			kmer_matrix[j,i] = used_digit
+			m = m+1
+	return kmer_matrix
+
+def weight_kmerscan_variable(k):
+	weight_kmerscaner=[]
+	### get kmer list
+	kmer_list=get_kmer_matrix(k)
+	#print(kmer_list)
+	### get scanner list
+	for ids in kmer_list:
+		tmp_matrix=np.zeros([k,1,4])
+		for p in range(0,k):
+			tmp_matrix[p,0,int(ids[p])]=1
+		weight_kmerscaner.append(tmp_matrix)
+	### change to np array
+	weight_kmerscaner=np.array(weight_kmerscaner)
+	weight_kmerscaner=np.transpose(weight_kmerscaner,(1,2,3,0))
+	weight_kmerscaner=tf.constant(weight_kmerscaner,dtype=tf.float32)
+	print(weight_kmerscaner.shape)
+	return weight_kmerscaner
+
 def weight_variable(shape):
 	initial = tf.truncated_normal(shape, stddev=0.01)
 	return tf.Variable(initial)
@@ -133,7 +167,7 @@ def max_pool_n(x, max_pool_size):
 x = tf.placeholder(tf.float32, shape=[None, sec_d, thr_d, for_d])
 y_ = tf.placeholder(tf.float32, shape=[None, 2])
 keep_prob1 = tf.placeholder(tf.float32)
-W_conv1 = weight_dimerscan_variable()
+W_conv1 = weight_kmerscan_variable(3)
 b_conv1 = bias_constant([filter1_size1])
 ### 
 #pool_shape1=sec_d*thr_d/max_pool1
