@@ -9,11 +9,8 @@ from sklearn.decomposition import PCA, KernelPCA
 from sklearn import svm
 
 data_test0 = np.load('test.npz')
-data_test = []
-for i in data_test0:
-	data_test.append(data_test0[i])
-xs_test = data_test[1]
-ys_test = data_test[2]
+xs_test = data_test0['data']
+ys_test = data_test0['label']
 
 xs_test_matrix = []
 for sequence in xs_test:
@@ -39,11 +36,8 @@ print(ys_test_matrix.shape)
 
 
 data_train0 = np.load('train.npz')
-data_train = []
-for i in data_train0:
-	data_train.append(data_train0[i])
-xs_train = data_train[1]
-ys_train = data_train[2]
+xs_train = data_train0['data']
+ys_train = data_train0['label']
 
 xs_train_matrix = []
 for sequence in xs_train:
