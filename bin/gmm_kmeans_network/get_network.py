@@ -60,7 +60,7 @@ for i in range(labels_gmm_kmeans.shape[0]):
 		#edge = [sequence[i,j], sequence[i,j+1], sequence[i,j+2]]
 		#edge = [sequence[i,j], sequence[i,j+1]]
 		#edge = [sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1]]
-		edge = [sequence[i,j-3], sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1], sequence[i,j+2]]
+		edge = [sequence[i,j-3], sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1]]
 		s_pred = h_pred[i,j]
 		t_pred = h_pred[i,j+1]
 		### append network
