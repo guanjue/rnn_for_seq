@@ -60,7 +60,7 @@ for i in range(labels_gmm_kmeans.shape[0]):
 		#edge = [sequence[i,j], sequence[i,j+1], sequence[i,j+2]]
 		#edge = [sequence[i,j], sequence[i,j+1]]
 		#edge = [sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1]]
-		edge = [sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1], sequence[i,j-2]]
+		edge = [sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1], sequence[i,j+2]]
 		s_pred = h_pred[i,j]
 		t_pred = h_pred[i,j+1]
 		### append network
@@ -127,7 +127,7 @@ for records in network:
 		for d in range(1,len(network[records][1])):
 			kmer_tmp = kmer_tmp + seq[(network[records][1][d])]
 		### get expected edge number by chance
-		exp_set_num = float(t_s[network[records][0]+network[records][2]] * edge_num[str(network[records][1])] ) / float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1] )
+		exp_set_num = float(t_s[network[records][0]+network[records][2]] * edge_num[str(network[records][1])]) / float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1])
 		network_matrix.append([network[records][0], kmer_tmp, network[records][2], network[records][3], exp_set_num, (network[records][3]+100)/(exp_set_num+100) ])
 network_matrix = np.array(network_matrix)
 network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
@@ -158,7 +158,7 @@ plt.savefig('network_enrichment_hist_state.pdf')
 network_matrix_thresh = []
 z_score = stats.norm.ppf(0.99)
 for records in network_matrix:
-	if float(records[5])>=np.mean(network_enrichment_forhist)+z_score*np.std(network_enrichment_forhist):
+	if float(records[5])>=(np.mean(network_enrichment_forhist)+z_score*np.std(network_enrichment_forhist)):
 		if records[0] != records[2]:
 			network_matrix_thresh.append(records)
 network_matrix_thresh = np.array(network_matrix_thresh)

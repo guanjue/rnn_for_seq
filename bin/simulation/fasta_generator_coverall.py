@@ -55,8 +55,8 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 		# make sure sequence without motif will have motif2
 		if if_motif1_added == 1:
 			random_2 = np.random.rand(1)[0]
-		#else:
-		#	random_2 = 0
+		else:
+			random_2 = np.random.rand(1)[0]
 
 		if random_2 <= motif2_seq0_p: # given the motif add probability
 			if relative_pos == 'upstream':

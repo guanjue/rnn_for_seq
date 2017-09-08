@@ -75,7 +75,7 @@ sec_d=100
 thr_d=1
 for_d=4
 
-filter1_size1=64
+filter1_size1=16
 filter1_size2=1
 filter1_size_out=32
 
@@ -167,7 +167,7 @@ def max_pool_n(x, max_pool_size):
 x = tf.placeholder(tf.float32, shape=[None, sec_d, thr_d, for_d])
 y_ = tf.placeholder(tf.float32, shape=[None, 2])
 keep_prob1 = tf.placeholder(tf.float32)
-W_conv1 = weight_kmerscan_variable(3)
+W_conv1 = weight_kmerscan_variable(2)
 b_conv1 = bias_constant([filter1_size1])
 ### 
 #pool_shape1=sec_d*thr_d/max_pool1

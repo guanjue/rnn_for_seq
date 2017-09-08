@@ -65,7 +65,7 @@ sec_d=100
 thr_d=1
 for_d=4
 
-filter1_size1=64
+filter1_size1=16
 filter1_size2=1
 filter1_size_out=32
 
