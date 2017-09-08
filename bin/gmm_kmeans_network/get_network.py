@@ -37,6 +37,13 @@ def write2d_array(array,output):
 labels_gmm_kmeans = read2d_array('labels_kmeans_label_matrix.txt',str)
 sequence = read2d_array('x_matrix_digit.txt',int)
 h_pred = read2d_array('rnn_hidden_layer_pred_softmax.txt',float)
+### only plot pos data
+pos_neg = read2d_array('y_obs_matrix.txt',float)[:,0] == 1.0
+
+#print(pos_neg[0:10])
+labels_gmm_kmeans = labels_gmm_kmeans[pos_neg,:]
+sequence = sequence[pos_neg,:]
+h_pred = h_pred[pos_neg,:]
 
 print('labels_gmm_kmeans.shape')
 print(labels_gmm_kmeans.shape)

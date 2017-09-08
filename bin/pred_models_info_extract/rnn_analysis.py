@@ -44,7 +44,6 @@ ys_test_matrix = np.array(ys_test_matrix)
 print('ys_test_matrix.shape')
 print(ys_test_matrix.shape)
 
-
 data_train0 = np.load('train.npz')
 xs_train = data_train0['data']
 ys_train = data_train0['label']
