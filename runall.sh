@@ -12,7 +12,7 @@
 ###### simulation analysis
 cd /Volumes/MAC_Data/data/labs/zhang_lab/sequence_prediction/nfyb_fos/simulate_data_vs_SHUFFLE
 ### generate random sequence with 2 motifs motif1 downstream of motif2
-time python /Volumes/MAC_Data/data/labs/zhang_lab/sequence_prediction/nfyb_fos/rnn_for_seq/bin/simulation/fasta_generator_coverall.py -l 100 -n 10000 -u ACGT -a 03322  -p 1.0 -b 30331  -q 0.6 -s 2017 -r upstream -o motif1_up_motif2.fa
+time python /Volumes/MAC_Data/data/labs/zhang_lab/sequence_prediction/nfyb_fos/rnn_for_seq/bin/simulation/fasta_generator_coverall.py -l 100 -n 10000 -u ACGT -a 03322  -p 1.0 -b 30331  -q 1.0 -s 2017 -r upstream -o motif1_up_motif2.fa
 ### dimer shuffle sequence
 time fasta-dinucleotide-shuffle -f motif1_up_motif2.fa -s 2017 > motif1_up_motif2.shuffle.fa
 ### fasta2seq

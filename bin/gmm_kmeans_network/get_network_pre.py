@@ -35,7 +35,7 @@ def write2d_array(array,output):
 ################################################################################################
 ### read np array
 labels_gmm_kmeans = read2d_array('labels_kmeans_label_matrix.txt',str)
-sequence = read2d_array('x_matrix_digit.txt',int)
+sequence = read2d_array('h_conv1_matrix_digit.txt',int)
 h_pred = read2d_array('rnn_hidden_layer_pred_softmax.txt',float)
 
 print('labels_gmm_kmeans.shape')
@@ -53,14 +53,14 @@ t_s = {}
 t_s_super = {}
 edge_num = {}
 for i in range(labels_gmm_kmeans.shape[0]):
-	for j in range(2, labels_gmm_kmeans.shape[1]-2):
+	for j in range(2, labels_gmm_kmeans.shape[1]-1):
 		s_node = labels_gmm_kmeans[i,j]
 		t_node = labels_gmm_kmeans[i,j+1]
 		#edge = sequence[i,j+1]
 		#edge = [sequence[i,j], sequence[i,j+1], sequence[i,j+2]]
 		#edge = [sequence[i,j], sequence[i,j+1]]
 		#edge = [sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1]]
-		edge = [sequence[i,j-2], sequence[i,j-1], sequence[i,j], sequence[i,j+1], sequence[i,j-2]]
+		edge = [sequence[i,j-1], sequence[i,j], sequence[i,j+1]]
 		s_pred = h_pred[i,j]
 		t_pred = h_pred[i,j+1]
 		### append network
@@ -123,9 +123,9 @@ network_matrix = []
 for records in network:
 	if network[records][3] >=0:
 		#print(network[records][1])
-		kmer_tmp = seq[(network[records][1][0])]
+		kmer_tmp = dimer_list[str(network[records][1][0])]
 		for d in range(1,len(network[records][1])):
-			kmer_tmp = kmer_tmp + seq[(network[records][1][d])]
+			kmer_tmp = kmer_tmp + dimer_list[str(network[records][1][d])][1]
 		### get expected edge number by chance
 		exp_set_num = float(t_s[network[records][0]+network[records][2]] * edge_num[str(network[records][1])] ) / float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1] )
 		network_matrix.append([network[records][0], kmer_tmp, network[records][2], network[records][3], exp_set_num, (network[records][3]+100)/(exp_set_num+100) ])
@@ -177,9 +177,9 @@ for records in network_superstate:
 	if network_superstate[records][3] >=0:
 		#print(network[records][1])
 		### dimer digit to dimer sequence
-		kmer_tmp = seq[(network_superstate[records][1][0])]
+		kmer_tmp = dimer_list[str(network_superstate[records][1][0])]
 		for d in range(1,len(network_superstate[records][1])):
-			kmer_tmp = kmer_tmp + seq[(network_superstate[records][1][d])]
+			kmer_tmp = kmer_tmp + dimer_list[str(network_superstate[records][1][d])][1]
 		### get expected edge number by chance
 		exp_set_num = float(t_s_super[network_superstate[records][0]+network_superstate[records][2]] * edge_num[str(network_superstate[records][1])] ) / float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1] )
 		network_superstate_matrix.append([network_superstate[records][0], kmer_tmp, network_superstate[records][2], network_superstate[records][3], exp_set_num, (network_superstate[records][3]+100)/(exp_set_num+100) ])
