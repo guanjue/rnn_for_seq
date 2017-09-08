@@ -70,7 +70,11 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 			elif relative_pos2 == 'downstream':
 				### randomly select motif 2 position
 				motif2_positon = np.random.random_integers(motif1_positon + len(motif1_seq), seq_len-1-len(motif2_seq), 1)[0]		
-
+			else:
+				### randomly select motif 2 position
+				motif2_positon = np.random.random_integers(0, seq_len-1-len(motif2_seq), 1)[0]
+				while (motif2_positon > motif1_positon - len(motif2_seq)) and (motif2_positon < motif1_positon + len(motif1_seq)):
+					motif2_positon = np.random.random_integers(0, seq_len-1-len(motif2_seq), 1)[0]
 			### add the second motif
 			i0 = 0
 			for i in range(motif2_positon,motif2_positon+len(motif2_seq)):
@@ -89,7 +93,11 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 			elif relative_pos3 == 'downstream':
 				### randomly select motif 2 position
 				motif3_positon = np.random.random_integers(motif1_positon + len(motif1_seq), seq_len-1-len(motif2_seq), 1)[0]		
-
+			else:
+				### randomly select motif 2 position
+				motif3_positon = np.random.random_integers(0, seq_len-1-len(motif3_seq), 1)[0]
+				while ((motif3_positon > motif1_positon - len(motif3_seq)) and (motif3_positon < motif1_positon + len(motif1_seq))) and ((motif3_positon > motif2_positon - len(motif3_seq)) and (motif3_positon < motif2_positon + len(motif2_seq))):
+					motif3_positon = np.random.random_integers(0, seq_len-1-len(motif3_seq), 1)[0]
 			### add the second motif
 			i0 = 0
 			for i in range(motif3_positon,motif3_positon+len(motif3_seq)):
