@@ -27,7 +27,7 @@ def write2d_array(array,output):
 	r1.close()
 ################################################################################################
 ### convrt dict to array
-def netdict_seq2char_netmatrix(netdict, seq_list, edge_num, statepair_dict, labels_gmm_kmeans):
+def netdict_seq2char_netmatrix(netdict, seq_list, edge_num, statepair_dict, labels_gmm_kmeans0, labels_gmm_kmeans):
 	netmatrix = []
 	for records in netdict:
 		### convert seq to character
@@ -35,7 +35,7 @@ def netdict_seq2char_netmatrix(netdict, seq_list, edge_num, statepair_dict, labe
 		for d in range(1,len(netdict[records][1])):
 			kmer_tmp = kmer_tmp + seq_list[(netdict[records][1][d])]
 		### get expected edge number by chance
-		exp_set_num = float(statepair_dict[netdict[records][0]+netdict[records][2]] * edge_num[str(netdict[records][1])]) / float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1])
+		exp_set_num = float(statepair_dict[netdict[records][0]+netdict[records][2]] * edge_num[str(netdict[records][1])]) * float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1]) / float(labels_gmm_kmeans0.shape[0] * labels_gmm_kmeans0.shape[1])**2 
 		netmatrix.append([netdict[records][0], kmer_tmp, netdict[records][2], netdict[records][3], exp_set_num, (netdict[records][3]+100)/(exp_set_num+100) ])
 	netmatrix = np.array(netmatrix)
 	return netmatrix
@@ -165,7 +165,7 @@ network, network_superstate, pred_cluster, pred_supercluster, edge_num, t_s, t_s
 #########################
 seq = ['A','C','G','T']
 ### for substate network
-network_matrix = netdict_seq2char_netmatrix(network, seq, edge_num, t_s, labels_gmm_kmeans0)
+network_matrix = netdict_seq2char_netmatrix(network, seq, edge_num, t_s, labels_gmm_kmeans0, labels_gmm_kmeans0)
 #network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
 write2d_array(network_matrix,'network_table.txt')
 ################################################################################################
@@ -184,7 +184,7 @@ write2d_array(pred_cluster_table,'pred_cluster_table.txt')
 #########################
 seq = ['A','C','G','T']
 ### for superstate network
-network_superstate_matrix = netdict_seq2char_netmatrix(network_superstate, seq, edge_num, t_s_super, labels_gmm_kmeans0)
+network_superstate_matrix = netdict_seq2char_netmatrix(network_superstate, seq, edge_num, t_s_super, labels_gmm_kmeans0, labels_gmm_kmeans0)
 #network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
 write2d_array(network_superstate_matrix,'network_superstate_table.txt')
 ################################################################################################
@@ -234,7 +234,7 @@ for k in range(kmeans_k):
 	network_pos_k, network_superstate_pos_k, pred_cluster_pos_k, pred_supercluster_pos_k, edge_num_pos_k, t_s_pos_k, t_s_super_pos_k = generate_net(labels_gmm_kmeans0_pos_k, sequence0_pos_k, h_pred0_pos_k)
 	#########################
 	### for substate network
-	network_matrix_pos_k = netdict_seq2char_netmatrix(network_pos_k, seq, edge_num, t_s, labels_gmm_kmeans0)
+	network_matrix_pos_k = netdict_seq2char_netmatrix(network_pos_k, seq, edge_num, t_s, labels_gmm_kmeans0, labels_gmm_kmeans0_pos_k)
 	#network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
 	write2d_array(network_matrix_pos_k,'network_table_pos_kmeans/network_table_pos_'+str(k)+'.txt')
 	################################################################################################
@@ -250,7 +250,7 @@ for k in range(kmeans_k):
 	### for superstate network
 	#########################
 	### for superstate network
-	network_superstate_matrix_pos_k = netdict_seq2char_netmatrix(network_superstate_pos_k, seq, edge_num, t_s_super, labels_gmm_kmeans0)
+	network_superstate_matrix_pos_k = netdict_seq2char_netmatrix(network_superstate_pos_k, seq, edge_num, t_s_super, labels_gmm_kmeans0, labels_gmm_kmeans0_pos_k)
 	#network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
 	write2d_array(network_superstate_matrix_pos_k,'network_table_pos_kmeans/network_superstate_table_pos_'+str(k)+'.txt')
 	################################################################################################
