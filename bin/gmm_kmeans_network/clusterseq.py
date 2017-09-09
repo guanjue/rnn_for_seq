@@ -50,12 +50,12 @@ def pred_dict2pred_matrix(pred_cluster):
 	return pred_cluster_table
 ################################################################################################
 ### get significant network edge
-def extract_enriched_edges(netmatrix, significance, enrichement_hist_filename):
+def extract_enriched_edges(netmatrix, net_enrichment_array, significance, enrichement_hist_filename):
 	import matplotlib.pyplot as plt
 	from scipy import stats
 	print('network_enrichment_forhist_superstate analysis:')
 	### extract enrichment array
-	net_enrichment_forhist = np.array(netmatrix[:,5],dtype=float)
+	net_enrichment_forhist = net_enrichment_array ### use all sample enrichment to calculate enrichment
 	### get significant stat	
 	z_score = stats.norm.ppf(significance)
 	print('z score: '+str(z_score))
@@ -170,7 +170,7 @@ network_matrix = netdict_seq2char_netmatrix(network, seq, edge_num, t_s, labels_
 write2d_array(network_matrix,'network_table.txt')
 ################################################################################################
 ### get significant substate network edge
-network_matrix_thresh, network_matrix_thresh_noself  = extract_enriched_edges(network_matrix, 0.99, 'network_enrichment_hist_state.pdf')
+network_matrix_thresh, network_matrix_thresh_noself  = extract_enriched_edges(network_matrix, np.array(network_matrix[:,5],dtype=float), 0.99, 'network_enrichment_hist_state.pdf')
 ### write matrix txt
 write2d_array(network_matrix_thresh,'network_matrix_thresh.txt')
 write2d_array(network_matrix_thresh_noself,'network_matrix_thresh_noself.txt')
@@ -189,7 +189,7 @@ network_superstate_matrix = netdict_seq2char_netmatrix(network_superstate, seq, 
 write2d_array(network_superstate_matrix,'network_superstate_table.txt')
 ################################################################################################
 ### get significant superstate network edge
-network_superstate_matrix_thresh, network_superstate_matrix_thresh_noself  = extract_enriched_edges(network_superstate_matrix, 0.99, 'network_superstate_enrichment_hist_state.pdf')
+network_superstate_matrix_thresh, network_superstate_matrix_thresh_noself  = extract_enriched_edges(network_superstate_matrix, np.array(network_superstate_matrix[:,5],dtype=float), 0.99, 'network_superstate_enrichment_hist_state.pdf')
 ### write matrix txt
 write2d_array(network_superstate_matrix_thresh,'network_superstate_matrix_thresh.txt')
 write2d_array(network_superstate_matrix_thresh_noself,'network_superstate_matrix_thresh_noself.txt')
@@ -239,7 +239,7 @@ for k in range(kmeans_k):
 	write2d_array(network_matrix_pos_k,'network_table_pos_kmeans/network_table_pos_'+str(k)+'.txt')
 	################################################################################################
 	### get significant substate network edge
-	network_matrix_thresh_pos_k, network_matrix_thresh_noself_pos_k  = extract_enriched_edges(network_matrix_pos_k, 0.99, 'network_table_pos_kmeans/network_enrichment_hist_state_pos_'+str(k)+'.pdf')
+	network_matrix_thresh_pos_k, network_matrix_thresh_noself_pos_k  = extract_enriched_edges(network_matrix_pos_k, np.array(network_matrix[:,5],dtype=float), 0.99, 'network_table_pos_kmeans/network_enrichment_hist_state_pos_'+str(k)+'.pdf')
 	### write matrix txt
 	write2d_array(network_matrix_thresh_pos_k,'network_table_pos_kmeans/network_matrix_thresh_pos_'+str(k)+'.txt')
 	write2d_array(network_matrix_thresh_noself_pos_k,'network_table_pos_kmeans/network_matrix_thresh_noself_pos_'+str(k)+'.txt')
@@ -255,7 +255,7 @@ for k in range(kmeans_k):
 	write2d_array(network_superstate_matrix_pos_k,'network_table_pos_kmeans/network_superstate_table_pos_'+str(k)+'.txt')
 	################################################################################################
 	### get significant superstate network edge
-	network_superstate_matrix_thresh_pos_k, network_superstate_matrix_thresh_noself_pos_k  = extract_enriched_edges(network_superstate_matrix_pos_k, 0.99, 'network_table_pos_kmeans/network_superstate_enrichment_hist_state_pos_'+str(k)+'.pdf')
+	network_superstate_matrix_thresh_pos_k, network_superstate_matrix_thresh_noself_pos_k  = extract_enriched_edges(network_superstate_matrix_pos_k, np.array(network_superstate_matrix[:,5],dtype=float), 0.99, 'network_table_pos_kmeans/network_superstate_enrichment_hist_state_pos_'+str(k)+'.pdf')
 	### write matrix txt
 	write2d_array(network_superstate_matrix_thresh,'network_table_pos_kmeans/network_superstate_matrix_thresh_pos_'+str(k)+'.txt')
 	write2d_array(network_superstate_matrix_thresh_noself,'network_table_pos_kmeans/network_superstate_matrix_thresh_noself_pos_'+str(k)+'.txt')
