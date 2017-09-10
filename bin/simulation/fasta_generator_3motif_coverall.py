@@ -43,7 +43,7 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 		if_motif1_added = 0
 		if np.random.rand(1)[0] <= motif1_seq0_p: # given the motif add probability
 			if_motif1_added = if_motif1_added + 1
-			if relative_pos2 == 'upstream':
+			if relative_pos2 == 'upstream' or relative_pos3 == 'upstream':
 				motif1_positon = np.random.random_integers(len(motif2_seq), seq_len-1-len(motif1_seq)-len(motif3_seq), 1)[0]
 			elif relative_pos2 == 'downstream':
 				motif1_positon = np.random.random_integers(0, seq_len-1-len(motif1_seq)-len(motif2_seq), 1)[0]
@@ -89,10 +89,10 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 		if random_3 <= motif3_seq0_p: # given the motif add probability
 			if relative_pos3 == 'upstream':
 				### randomly select motif 2 position
-				motif3_positon = np.random.random_integers(0, motif1_positon - len(motif2_seq), 1)[0]
+				motif3_positon = np.random.random_integers(0, motif1_positon - len(motif3_seq), 1)[0]
 			elif relative_pos3 == 'downstream':
 				### randomly select motif 2 position
-				motif3_positon = np.random.random_integers(motif1_positon + len(motif1_seq), seq_len-1-len(motif2_seq), 1)[0]		
+				motif3_positon = np.random.random_integers(motif1_positon + len(motif1_seq), seq_len-1-len(motif3_seq), 1)[0]		
 			else:
 				### randomly select motif 2 position
 				motif3_positon = np.random.random_integers(0, seq_len-1-len(motif3_seq), 1)[0]
