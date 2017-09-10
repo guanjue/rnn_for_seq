@@ -74,9 +74,9 @@ sec_d=100
 thr_d=1
 for_d=4
 
-filter1_size1=16
+filter1_size1=8
 filter1_size2=1
-filter1_size_out=32
+filter1_size_out=8
 
 filter1_max_pool_size=100
 
@@ -166,24 +166,31 @@ def max_pool_n(x, max_pool_size):
 x = tf.placeholder(tf.float32, shape=[None, sec_d, thr_d, for_d])
 y_ = tf.placeholder(tf.float32, shape=[None, 2])
 keep_prob1 = tf.placeholder(tf.float32)
-W_conv1 = weight_kmerscan_variable(2)
-b_conv1 = bias_constant([filter1_size1])
+W_conv1 = weight_variable([filter1_size1, filter1_size2, for_d, filter1_size_out])
+b_conv1 = bias_variable([filter1_size_out])
 ### 
 #pool_shape1=sec_d*thr_d/max_pool1
 #h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_conv1 = (tf.nn.relu(conv2d(x, W_conv1) + b_conv1))
+h_conv1_drop = tf.nn.dropout(h_conv1, keep_prob1)
 print('tf.shape(h_conv1)')
 print(tf.shape(h_conv1))
-#h_conv1_nonzero = tf.cast(h_conv1==2,h_conv1.dtype)
-#print('tf.shape(h_conv1_nonzero)')
-#print(tf.shape(h_conv1_nonzero))
-x_transpose = tf.transpose(h_conv1, [1, 0, 2, 3])
-x_reshape = tf.reshape(x_transpose, [-1, filter1_size1])
+h_pool1_wta = tf.reduce_max(h_conv1_drop, reduction_indices=[3], keep_dims=True)
 
+h_conv1_max = tf.nn.relu((h_conv1+0.0001) / (h_pool1_wta+0.0001) - 0.99)
+print('tf.shape(h_pool1_wta)')
+print(tf.shape(h_pool1_wta))
+
+print('tf.shape(h_conv1_max)')
+print(tf.shape(h_conv1_max))
+
+
+x_transpose = tf.transpose(h_conv1_max, [1, 0, 2, 3])
+x_reshape = tf.reshape(x_transpose, [-1, filter1_size_out])
 
 # Split to get a list of 'n_steps' tensors of shape (batch_size, n_input)
 rnn_input = tf.split(x_reshape,axis=0, num_or_size_splits=sec_d)
-rnn_cell_num=16
+rnn_cell_num=32
 rnn_cell = tf.nn.rnn_cell.GRUCell(rnn_cell_num)
 
 outputs, states = tf.contrib.rnn.static_rnn(rnn_cell, rnn_input, dtype=tf.float32)
@@ -210,18 +217,13 @@ sess.run(tf.initialize_local_variables())
 
 print('Start!!! RNN')
 saver = tf.train.Saver()
-saver.restore(sess, "trained_rnn_gru_model.ckpt")
+saver.restore(sess, "trained_cnn_rnn_gru_model.ckpt")
 k=0
 index_array_p=np.arange(ys_train.shape[0])
 np.random.shuffle(index_array_p)
 
 test_accuracy = accuracy.eval(feed_dict={x:xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0})
-print("testing accuracy same cell!!! R2: "+str(test_accuracy) )
-
-test_roc = sess.run(au_roc, feed_dict={x:xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0})
-test_prc = sess.run(au_prc, feed_dict={x:xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0})
-print("testing au roc same cell!!! R2: "+str(test_roc[0]) )
-print("testing au prc same cell!!! R2: "+str(test_prc[0]) )
+print("step , testing accuracy same cell!!! R2: "+str(test_accuracy) )
 
 fc_layer = np.array(sess.run(w_fc, feed_dict={x: xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0}))
 print('fc_layer.shape')
@@ -231,6 +233,22 @@ rnn_hidden_layer = np.array(sess.run(outputs, feed_dict={x: xs_test_matrix, y_: 
 print('rnn_hidden_layer.shape')
 print(rnn_hidden_layer.shape)
 
+h_pool1_wta_layer = np.array(sess.run(h_pool1_wta, feed_dict={x: xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0}))
+print('h_pool1_wta_layer.shape')
+print(h_pool1_wta_layer.shape)
+write2d_array(h_pool1_wta_layer[0,:,:,:], 'h_pool1_wta_layer.txt')
+
+h_conv1_max_layer = np.array(sess.run(h_conv1_max, feed_dict={x: xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0}))
+print('h_conv1_max_layer.shape')
+print(h_conv1_max_layer.shape)
+write2d_array(h_conv1_max_layer[0,:,:,:], 'h_conv1_max_layer.txt')
+
+h_conv1_layer = np.array(sess.run(h_conv1, feed_dict={x: xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0}))
+print('h_conv1_layer.shape')
+print(h_conv1_layer.shape)
+write2d_array(h_conv1_layer[0,:,:,:], 'h_conv1_layer.txt')
+
+'''
 for i in range(0,rnn_hidden_layer.shape[2]):
 	rnn_hidden_layer_channel = np.transpose(rnn_hidden_layer[:,:,i])
 	write2d_array(rnn_hidden_layer_channel,'rnn_hidden_layer_channel/rnn_hidden_layer_channel'+str(i)+'.txt')
@@ -280,5 +298,5 @@ write2d_array(h_conv1_matrix_digit,'h_conv1_matrix_digit.txt')
 x_matrix = np.array(sess.run(x, feed_dict={x: xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0}))
 x_matrix_digit = np.argmax(x_matrix[:,:,0,:],axis=2)
 write2d_array(x_matrix_digit,'x_matrix_digit.txt')
-
+'''
 
