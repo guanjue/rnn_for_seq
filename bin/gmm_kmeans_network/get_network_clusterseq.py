@@ -35,14 +35,9 @@ def netdict_seq2char_netmatrix(netdict, seq_list, edge_num, statepair_dict, labe
 		for d in range(1,len(netdict[records][1])):
 			kmer_tmp = kmer_tmp + seq_list[(netdict[records][1][d])]
 		### get expected edge number by chance
-		all_edge_num = float(labels_gmm_kmeans0.shape[0] * labels_gmm_kmeans0.shape[1])
-		cluster_edge_num = float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1])
-		seq_len = labels_gmm_kmeans.shape[1]
-		add_small_num = cluster_edge_num/seq_len/50
-		exp_set_num = float(statepair_dict[netdict[records][0]+netdict[records][2]] * edge_num[str(netdict[records][1])]) * cluster_edge_num / all_edge_num**2 
-		netmatrix.append([netdict[records][0], kmer_tmp, netdict[records][2], netdict[records][3], exp_set_num, (netdict[records][3]+add_small_num)/(exp_set_num+add_small_num) ])
-	netmatrix = np.array(netmatrix)	
-	print('add_small_num: '+str(add_small_num))
+		exp_set_num = float(statepair_dict[netdict[records][0]+netdict[records][2]] * edge_num[str(netdict[records][1])]) * float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1]) / float(labels_gmm_kmeans0.shape[0] * labels_gmm_kmeans0.shape[1])**2 
+		netmatrix.append([netdict[records][0], kmer_tmp, netdict[records][2], netdict[records][3], exp_set_num, (netdict[records][3]+10)/(exp_set_num+10) ])
+	netmatrix = np.array(netmatrix)
 	return netmatrix
 ################################################################################################
 ### pred_dict to pred matrix
@@ -205,22 +200,71 @@ write2d_array(network_superstate_matrix_thresh_noself,'network_superstate_matrix
 pred_supercluster_table = pred_dict2pred_matrix(pred_supercluster)
 write2d_array(pred_supercluster_table,'pred_supercluster_table.txt')
 ################################################################################################
+
+################################################################################################
+### only plot pos data
+pos_neg = ( (read2d_array('y_obs_matrix.txt',float)[:,0] == 1.0 ) * (read2d_array('y_predict_matrix.txt',float)[:,0] > 0.5 ) ) !=0
+labels_gmm_kmeans0_pos = labels_gmm_kmeans0[pos_neg]
+sequence0_pos = sequence0[pos_neg]
+h_pred0_pos = h_pred0[pos_neg]
+### kmean cluster positive sequence
+################################################################################################
+kmeans_k = 5
+print('Kmeans clustering:')
+kmeans_pos = KMeans(n_clusters=kmeans_k, init='k-means++', max_iter=100, n_init=1, verbose=0, random_state=2017).fit(h_pred0_pos)
+print('Kmeans clustering DONE!')
+kmeans_label_pos = kmeans_pos.labels_
+plt.figure(figsize=(15, 20))
+sns.heatmap(h_pred0_pos[np.argsort(kmeans_label_pos)], center=0, cmap='bwr')
+plt.savefig('h_pred_pos_kmeans_heatmap.pdf')
+plt.close()
+
 ### creat kmeans folder
-if not os.path.isdir('superstate_seqs'):
-	os.makedirs('superstate_seqs')
-network_superstate_matrix_thresh_noself_dict = {}
-for records in network_superstate_matrix_thresh_noself:
-	if records[0]+'_'+records[2] in network_superstate_matrix_thresh_noself_dict:
-		network_superstate_matrix_thresh_noself_dict[records[0]+'_'+records[2]].append(['>'])
-		network_superstate_matrix_thresh_noself_dict[records[0]+'_'+records[2]].append([records[1]])
-	else:
-		network_superstate_matrix_thresh_noself_dict[records[0]+'_'+records[2]] = [['>']]
-		network_superstate_matrix_thresh_noself_dict[records[0]+'_'+records[2]].append([records[1]])
+if not os.path.isdir('network_table_pos_kmeans'):
+	os.makedirs('network_table_pos_kmeans')
+### kmeans clustering
+for k in range(kmeans_k):
+	print('kmeans: '+str(k))
+	### extract data for kmeans k
+	labels_gmm_kmeans0_pos_k = labels_gmm_kmeans0_pos[kmeans_label_pos==k,:]
+	sequence0_pos_k = sequence0_pos[kmeans_label_pos==k,:]
+	h_pred0_pos_k = h_pred0_pos[kmeans_label_pos==k,:]
+	print('h_pred0_pos_k.shape')
+	print(h_pred0_pos_k.shape)
+	###
+	### before sample clustering
+	network_pos_k, network_superstate_pos_k, pred_cluster_pos_k, pred_supercluster_pos_k, edge_num_pos_k, t_s_pos_k, t_s_super_pos_k = generate_net(labels_gmm_kmeans0_pos_k, sequence0_pos_k, h_pred0_pos_k)
+	#########################
+	### for substate network
+	network_matrix_pos_k = netdict_seq2char_netmatrix(network_pos_k, seq, edge_num, t_s, labels_gmm_kmeans0, labels_gmm_kmeans0_pos_k)
+	print('network_matrix_pos_k.shape: '+str(network_matrix_pos_k.shape))
+	#network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
+	write2d_array(network_matrix_pos_k,'network_table_pos_kmeans/network_table_pos_'+str(k)+'.txt')
+	################################################################################################
+	### get significant substate network edge
+	network_matrix_thresh_pos_k, network_matrix_thresh_noself_pos_k  = extract_enriched_edges(network_matrix_pos_k, np.array(network_matrix[:,5],dtype=float), 0.99, 'network_table_pos_kmeans/network_enrichment_hist_state_pos_'+str(k)+'.pdf')
+	### write matrix txt
+	write2d_array(network_matrix_thresh_pos_k,'network_table_pos_kmeans/network_matrix_thresh_pos_'+str(k)+'.txt')
+	write2d_array(network_matrix_thresh_noself_pos_k,'network_table_pos_kmeans/network_matrix_thresh_noself_pos_'+str(k)+'.txt')
+	################################################################################################
 
-for records in network_superstate_matrix_thresh_noself_dict:
-	write2d_array(network_superstate_matrix_thresh_noself_dict[records],'superstate_seqs/'+records+'.txt')
+
+	################################################################################################
+	### for superstate network
+	#########################
+	### for superstate network
+	network_superstate_matrix_pos_k = netdict_seq2char_netmatrix(network_superstate_pos_k, seq, edge_num, t_s_super, labels_gmm_kmeans0, labels_gmm_kmeans0_pos_k)
+	print('network_superstate_matrix_pos_k.shape: '+str(network_superstate_matrix_pos_k.shape))
+	#network_matrix = network_matrix[np.argsort(np.array(network_matrix[:,3],dtype=int))]
+	write2d_array(network_superstate_matrix_pos_k,'network_table_pos_kmeans/network_superstate_table_pos_'+str(k)+'.txt')
+	################################################################################################
+	### get significant superstate network edge
+	network_superstate_matrix_thresh_pos_k, network_superstate_matrix_thresh_noself_pos_k  = extract_enriched_edges(network_superstate_matrix_pos_k, np.array(network_superstate_matrix[:,5],dtype=float), 0.99, 'network_table_pos_kmeans/network_superstate_enrichment_hist_state_pos_'+str(k)+'.pdf')
+	### write matrix txt
+	write2d_array(network_superstate_matrix_thresh_pos_k,'network_table_pos_kmeans/network_superstate_matrix_thresh_pos_'+str(k)+'.txt')
+	write2d_array(network_superstate_matrix_thresh_noself_pos_k,'network_table_pos_kmeans/network_superstate_matrix_thresh_noself_pos_'+str(k)+'.txt')
+	################################################################################################
 
 
-
-
+	################################################################################################
 
