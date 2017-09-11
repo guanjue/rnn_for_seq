@@ -220,7 +220,7 @@ align_motif('network_matrix_thresh_noself.txt', 'network_matrix_thresh_noself_al
 
 k=5
 for i in range(k):
-	align_motif('network_table_pos_kmeans/network_superstate_matrix_thresh_pos_'+str(i)+'.txt', 'network_table_pos_kmeans/network_superstate_matrix_thresh_pos_'+str(i)+'_aligned.txt')
+	align_motif('network_table_pos_kmeans/network_superstate_matrix_thresh_noself_pos_'+str(i)+'.txt', 'network_table_pos_kmeans/network_superstate_matrix_thresh_noself_pos_'+str(i)+'_aligned.txt')
 	align_motif('network_table_pos_kmeans/network_matrix_thresh_noself_pos_'+str(i)+'.txt', 'network_table_pos_kmeans/network_matrix_thresh_noself_pos_'+str(i)+'_aligned.txt')
 
 
