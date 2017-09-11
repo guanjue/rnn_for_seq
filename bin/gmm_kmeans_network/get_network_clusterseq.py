@@ -35,9 +35,14 @@ def netdict_seq2char_netmatrix(netdict, seq_list, edge_num, statepair_dict, labe
 		for d in range(1,len(netdict[records][1])):
 			kmer_tmp = kmer_tmp + seq_list[(netdict[records][1][d])]
 		### get expected edge number by chance
-		exp_set_num = float(statepair_dict[netdict[records][0]+netdict[records][2]] * edge_num[str(netdict[records][1])]) * float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1]) / float(labels_gmm_kmeans0.shape[0] * labels_gmm_kmeans0.shape[1])**2 
-		netmatrix.append([netdict[records][0], kmer_tmp, netdict[records][2], netdict[records][3], exp_set_num, (netdict[records][3]+10)/(exp_set_num+10) ])
-	netmatrix = np.array(netmatrix)
+		all_edge_num = float(labels_gmm_kmeans0.shape[0] * labels_gmm_kmeans0.shape[1])
+		cluster_edge_num = float(labels_gmm_kmeans.shape[0] * labels_gmm_kmeans.shape[1])
+		seq_len = labels_gmm_kmeans.shape[1]
+		add_small_num = cluster_edge_num/seq_len/50
+		exp_set_num = float(statepair_dict[netdict[records][0]+netdict[records][2]] * edge_num[str(netdict[records][1])]) * cluster_edge_num / all_edge_num**2 
+		netmatrix.append([netdict[records][0], kmer_tmp, netdict[records][2], netdict[records][3], exp_set_num, (netdict[records][3]+add_small_num)/(exp_set_num+add_small_num) ])
+	netmatrix = np.array(netmatrix)	
+	print('add_small_num: '+str(add_small_num))
 	return netmatrix
 ################################################################################################
 ### pred_dict to pred matrix
