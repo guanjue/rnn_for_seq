@@ -117,7 +117,7 @@ def extract_enriched_edges(netmatrix, net_enrichment_array, significance, enrich
 		elif (np.log(float(records[5]))>=upper_lim) or (np.log(float(records[5]))<=lower_lim):
 			netmatrix_thresh.append(records)
 			if records[0] != records[2]:
-				netmatrix_thresh_noself.append([records[0], records[1], records[2], records[3], records[4], records[5]])
+				netmatrix_thresh_noself.append([records[0], records[1], records[2], records[3], records[4], np.log(float(records[5]))])
 	netmatrix_thresh = np.array(netmatrix_thresh)
 	netmatrix_thresh_noself = np.array(netmatrix_thresh_noself)
 	### plot network enrichment distribution histgram
