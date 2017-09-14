@@ -114,7 +114,7 @@ for i in gmm_cm_num:
 	print('rnn_h_npz0_cm.shape')
 	print(rnn_h_npz0_cm.shape)
 	### kmeans clustering
-	kmeans_k=3
+	kmeans_k=10
 	kmeans = KMeans(n_clusters=kmeans_k, init='k-means++', max_iter=100, n_init=1, verbose=0, random_state=2017).fit(rnn_h_npz0_cm)
 	kmeans_label=kmeans.labels_
 	print('kmeans_label.shape:')

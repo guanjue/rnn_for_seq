@@ -200,6 +200,8 @@ train_step = tf.train.AdamOptimizer(training_speed).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+au_roc = tf.metrics.auc(y_, y_predict, curve='ROC')
+au_prc = tf.metrics.auc(y_, y_predict, curve='PR')
 
 sess = tf.InteractiveSession()
 sess.run(tf.initialize_all_variables())
@@ -212,8 +214,6 @@ print('Start!!! RNN')
 saver = tf.train.Saver()
 saver.restore(sess, "trained_rnn_gru_model.ckpt")
 k=0
-index_array_p=np.arange(ys_train.shape[0])
-np.random.shuffle(index_array_p)
 
 test_accuracy = accuracy.eval(feed_dict={x:xs_test_matrix, y_: ys_test_matrix, keep_prob1: 1.0})
 print("testing accuracy same cell!!! R2: "+str(test_accuracy) )

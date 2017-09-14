@@ -36,6 +36,7 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 	### generate sequence
 	print('start simulation!')
 	generated_seq = []
+	motif_pos_list = []
 	for n in range(seq_num):
 		### generate the random sequence
 		rand_seq = np.random.randint(4,size=seq_len)
@@ -103,6 +104,8 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 			for i in range(motif3_positon,motif3_positon+len(motif3_seq)):
 				rand_seq[i] = motif3_seq[i0]
 				i0 = i0+1
+		motif_pos_list.append([motif1_positon, motif2_positon, motif3_positon])
+
 		### convert acgt to 0123
 		generated_seq.append(['>'+str(n)])
 		tmp = ''
@@ -118,7 +121,7 @@ def fasta_generator(seq_len, seq_num, nuc0, motif1_seq0, motif1_seq0_p, motif2_s
 		generated_seq.append([tmp])
 	### write generated fasta
 	write2d_array(generated_seq, outputname)
-
+	write2d_array(motif_pos_list, outputname+'.posi_list.txt')
 ############################################################################
 #time python fasta_generator.py -l 100 -n 5000 -u ACGT -a 03322 -p 0.9 -b 30331 -q 0.6 -s 2017 -r upstream -o motif1_up_motif2.fa
 

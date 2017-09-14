@@ -114,9 +114,9 @@ def pairwise_align(seq1, seq2):
 		if i == j: ### match
 			seq12_merge = seq12_merge + i
 		elif i=='-': ### gap
-			seq12_merge = seq12_merge + j
+			seq12_merge = seq12_merge + '-'#j
 		elif j=='-': ### gap
-			seq12_merge = seq12_merge + i
+			seq12_merge = seq12_merge + '-'#i
 		else: ### mismatch
 			seq12_merge = seq12_merge + '-'
 	return seq1_a, seq2_a, seq12_merge, align_score
@@ -126,10 +126,10 @@ def multi_seq2alignedseq(seqlist):
 	k=0
 	while seqlist.shape[0] != 0:
 		#print('step: '+str(k))
-		if k>=20:
+		if k>=100:
 			print('something is not right...')
 			break
-		print(seqlist)
+		#print(seqlist)
 		best_score = -100 ### step k best align score
 		if k==0:
 			for i in range(len(seqlist)-1): ### pairwise compare
@@ -163,16 +163,16 @@ def multi_seq2alignedseq(seqlist):
 		#print('best merged align seq: '+best_merge_seq)
 
 	### realign all sequence 2 best merged seq
-	print('best_merge_seq: '+best_merge_seq)
+	#print('best_merge_seq: '+best_merge_seq)
 	seqlist0_allaligned = []
 	for records in seqlist0:
 		seq1 = records
 		seq2 = best_merge_seq
 		seq1_a, seq2_a, seq12_merge, align_score = pairwise_align(seq1, seq2)
 		seqlist0_allaligned.append(seq1_a)
-	print('all aligned sequence: ')
-	for records in seqlist0_allaligned:
-		print(records)
+	#print('all aligned sequence: ')
+	#for records in seqlist0_allaligned:
+	#	print(records)
 	return seqlist0_allaligned, best_merge_seq
 ##########################################################
 def align_motif(inputname, outputname):
@@ -197,7 +197,7 @@ def align_motif(inputname, outputname):
 	result_matrix_best_aligned_edge = []
 	for records in superstate_matrix_edge:
 		if np.array(superstate_matrix_edge[records]).shape[0]>1:
-			print('state_pair: '+records)
+			#print('state_pair: '+records)
 			aligned_edges, best_all_algned_edge = multi_seq2alignedseq(np.array(superstate_matrix_edge[records]))
 		else: ### if only 1 edge, no align
 			aligned_edges, best_all_algned_edge = superstate_matrix_edge[records], superstate_matrix_edge[records][0]
@@ -217,6 +217,10 @@ def align_motif(inputname, outputname):
 
 align_motif('network_superstate_matrix_thresh_noself.txt', 'network_superstate_matrix_thresh_noself_aligned.txt')
 align_motif('network_matrix_thresh_noself.txt', 'network_matrix_thresh_noself_aligned.txt')
+align_motif('network_matrix_thresh_noself_2layer.txt', 'network_matrix_thresh_noself_2layer_aligned.txt')
+
+align_motif('network_superstate_matrix_thresh.txt', 'network_superstate_matrix_thresh_aligned.txt')
+align_motif('network_matrix_thresh.txt', 'network_matrix_thresh_aligned.txt')
 
 k=5
 for i in range(k):
@@ -224,5 +228,9 @@ for i in range(k):
 	align_motif('network_table_pos_kmeans/network_matrix_thresh_noself_pos_'+str(i)+'.txt', 'network_table_pos_kmeans/network_matrix_thresh_noself_pos_'+str(i)+'_aligned.txt')
 
 
+align_motif('network_table_pos_kmeans/network_superstate_matrix_thresh_noself_pos.txt', 'network_table_pos_kmeans/network_superstate_matrix_thresh_noself_pos_aligned.txt')
+align_motif('network_table_pos_kmeans/network_superstate_matrix_thresh_noself_neg.txt', 'network_table_pos_kmeans/network_superstate_matrix_thresh_noself_neg_aligned.txt')
 
+align_motif('network_table_pos_kmeans/network_matrix_thresh_noself_pos.txt', 'network_table_pos_kmeans/network_matrix_thresh_noself_pos_aligned.txt')
+align_motif('network_table_pos_kmeans/network_matrix_thresh_noself_neg.txt', 'network_table_pos_kmeans/network_matrix_thresh_noself_neg_aligned.txt')
 

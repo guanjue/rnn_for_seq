@@ -66,7 +66,24 @@ def pred_dict2pred_matrix(pred_cluster):
 	pred_cluster_table = []
 	for records in pred_cluster:
 		pred_all = np.array(pred_cluster[records])
-		pred_cluster_table.append( [records, np.mean(pred_all)] )
+		pred_cluster_table.append( [records, np.mean(pred_all), 1] )
+	return pred_cluster_table
+################################################################################################
+### pred_dict to pred matrix
+def pred_dict2pred_matrix_2layer(pred_cluster):
+	import numpy as np
+	pred_cluster_table = []
+	super_state_list = []
+	### extract super state
+	for records in pred_cluster:
+		super_state_list.append(records)
+	###
+	for records in pred_cluster:
+		pred_all = np.array(pred_cluster[records])
+		for superS_S in super_state_list:
+			super_state = superS_S.split('_')[0]
+			pred_cluster_table.append( [super_state+'_'+records, np.mean(pred_all), 0] )
+			pred_cluster_table.append( [records+'_'+super_state, np.mean(pred_all), 0] )
 	return pred_cluster_table
 ################################################################################################
 ### get significant network edge
@@ -88,20 +105,25 @@ def extract_enriched_edges(netmatrix, net_enrichment_array, significance, enrich
 	netmatrix_thresh = []
 	netmatrix_thresh_noself = []
 	for records in netmatrix:
+		### get enrichment limit
+		upper_lim = np.mean(net_enrichment_forhist)+z_score*np.std(net_enrichment_forhist)
+		lower_lim = np.mean(net_enrichment_forhist)-z_score*np.std(net_enrichment_forhist)
+		###
 		if (records[0].split('_')[0]=='op') or (records[2].split('_')[0]=='ed'):
 			if float(records[3]) >10:
 				netmatrix_thresh.append(records)
 				if records[0] != records[2]:
-					netmatrix_thresh_noself.append(records)			
-		elif np.log(float(records[5]))>=np.mean(net_enrichment_forhist)+z_score*np.std(net_enrichment_forhist):
+					netmatrix_thresh_noself.append(records)
+		elif (np.log(float(records[5]))>=upper_lim) or (np.log(float(records[5]))<=lower_lim):
 			netmatrix_thresh.append(records)
 			if records[0] != records[2]:
-				netmatrix_thresh_noself.append(records)
+				netmatrix_thresh_noself.append([records[0], records[1], records[2], records[3], records[4], records[5]])
 	netmatrix_thresh = np.array(netmatrix_thresh)
 	netmatrix_thresh_noself = np.array(netmatrix_thresh_noself)
 	### plot network enrichment distribution histgram
 	plt.hist(net_enrichment_forhist, 100, normed=True, histtype='bar',color='k')
-	plt.axvline(np.mean(net_enrichment_forhist)+z_score*np.std(net_enrichment_forhist), color='b', linestyle='dashed', linewidth=2)
+	plt.axvline(upper_lim, color='b', linestyle='dashed', linewidth=2)
+	plt.axvline(lower_lim, color='b', linestyle='dashed', linewidth=2)
 	plt.savefig(enrichement_hist_filename)
 	plt.close()
 	return netmatrix_thresh, netmatrix_thresh_noself
@@ -114,12 +136,10 @@ def statenet2layernet(statenet):
 		super_t = records[2].split('_')[0]
 		sub_s = records[0]#.split('_')[1]
 		sub_t = records[2]#.split('_')[1]
-		#layernet.append([super_s, records[1], sub_s+'_'+super_t, records[3], records[4], records[5]])
-		#layernet.append([super_s+'_'+sub_t, records[1], super_t, records[3], records[4], records[5]])
+		layernet.append([super_s, records[1], sub_s+'_'+super_t, records[3], records[4], records[5]])
+		layernet.append([super_s+'_'+sub_t, records[1], super_t, records[3], records[4], records[5]])
 		layernet.append([sub_s+'_'+super_t, records[1], super_s+'_'+sub_t, records[3], records[4], records[5]])
 	return layernet
-
-
 ################################################################################################
 ### read np array
 labels_gmm_kmeans0 = read2d_array_oped('labels_kmeans_label_matrix.txt',str)
@@ -224,7 +244,9 @@ write2d_array(network_matrix_thresh_noself_2layer,'network_matrix_thresh_noself_
 ### for substate prediction
 pred_cluster_table = pred_dict2pred_matrix(pred_cluster)
 write2d_array(pred_cluster_table,'pred_cluster_table.txt')
-
+### for 2 layer net
+pred_cluster_table_2layer = pred_dict2pred_matrix_2layer(pred_cluster)
+write2d_array(pred_cluster_table_2layer,'pred_cluster_table_2layer.txt')
 ################################################################################################
 ### for superstate network
 print('superstate start!')
